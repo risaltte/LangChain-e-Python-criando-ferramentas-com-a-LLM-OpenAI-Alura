@@ -1,33 +1,41 @@
-from openai import OpenAI
+from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
+from langchain_google_genai import ChatGoogleGenerativeAI
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
-api_key = os.getenv("OPENAI_API_KEY")
+api_key_openia = os.getenv("OPENAI_API_KEY")
+api_key_groq = os.getenv("GROQ_API_KEY")
+api_key_gemini = os.getenv("GEMINI_API_KEY")
 
-print(api_key)
+modelo_openia = ChatOpenAI(
+    model="gpt-3.5-turbo",
+    temperature=0.5,
+    api_key=api_key_openia
+)
+
+modelo_groq = ChatGroq(
+    model="llama-3.3-70b-versatile",
+    temperature=0.5,
+    api_key=api_key_groq,
+)
+
+modelo_gemini = ChatGoogleGenerativeAI(
+    model="gemini-2.5-flash-lite",
+    temperature=0.5,
+    api_key=api_key_gemini,
+)
+
 
 numero_dias = 5
 numero_criancas = 2
-atividade = "música"
+atividade = "praia"
 
-prompt = f"Crie um roteiro de viagem de {numero_dias} dias, para uma família de {numero_criancas} crianças, que gosta de {atividade}"
+prompt = f"Crie um roteiro de viagens para um período de{numero_dias} dias, para uma família com  {numero_criancas} crianças cque buscam atividades relacionadas a {atividade}."
 
-cliente = OpenAI(api_key=api_key)
+modelo = modelo_gemini
 
-resposta = cliente.chat.completions.create(
-    model="gpt-3.5-turbo",
-    messages=[
-        {
-            "role": "system",
-            "content": "Você é um assistente de roteiro de viagens."
-        },
-        {
-            "role": "user",
-            "content": prompt
-        }
-    ]
-)
+resposta = modelo.invoke(prompt)
 
-resposta_em_texto = resposta.choices[0].message.content
-print(resposta_em_texto)
+print(resposta.content)
